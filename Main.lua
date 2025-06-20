@@ -1,3 +1,4 @@
+--Services
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
@@ -22,7 +23,6 @@ local customBinds = {}
 local infJumpEnabled = false
 local infJumpConnection = nil
 local espOn = false
-espOn = not espOn
 local spinOn = false
 local spinBAV, lockBP
 local savedCFrame
@@ -30,8 +30,6 @@ local invisRunning = false
 local InvisibleCharacter = nil
 local OriginalCharacter = nil
 local voidConn = nil
-
--- Flight variables
 local flyingEnabled = false
 local flyBG, flyBV, flyConn
 local ray = workspace.CurrentCamera:ScreenPointToRay(Mouse.X, Mouse.Y)
@@ -639,6 +637,7 @@ FunctionManager:register("Scare Closest Player", function()
 	end
 end, "Fun")
 FunctionManager:register("ESP Toggle", function()
+	espOn = not espOn
 	for _, plr in ipairs(Players:GetPlayers()) do
 		if plr.Character and plr ~= Player then
 			local head = plr.Character:FindFirstChild("Head")
@@ -1141,6 +1140,13 @@ end, "Troll")
 FunctionManager:register("Hat Script", function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/ocfi/Scp-096-Obfuscated/refs/heads/main/obuf"))()
 end, "Troll")
+
+
+
+
+
+
+
 
 
 --init
