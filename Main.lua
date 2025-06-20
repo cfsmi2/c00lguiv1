@@ -12,6 +12,16 @@ local Mouse           = Player:GetMouse()
 local CollectionService = game:GetService("CollectionService")
 local RunService = game:GetService("RunService")
 local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
+local TweenService = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local MarketplaceService = game:GetService("MarketplaceService")
+local StarterGui = game:GetService("StarterGui")
+local Debris = game:GetService("Debris")
+local Lighting = game:GetService("Lighting")
+local SoundService = game:GetService("SoundService")
+local PlaceId = game.PlaceId
+local JobId = game.JobId
 --settings
 local infjump = false
 local invisRunning = false
@@ -565,6 +575,47 @@ FunctionManager:register("WalkSpeed Slider", function()
 end, "Movement")
 
 
+
+FunctionManager:register("Server Hop", function()
+	local success, res = pcall(function()
+		return game:HttpGet(
+			"https://games.roblox.com/v1/games/" ..
+				PlaceId ..
+				"/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true"
+		)
+	end)
+
+	if not success then
+		return warn("[Server Hop] HTTP request failed:", res)
+	end
+
+	local body
+	local ok, err = pcall(function()
+		body = HttpService:JSONDecode(res)
+	end)
+	if not ok or type(body) ~= "table" or type(body.data) ~= "table" then
+		return warn("[Server Hop] Invalid JSON response")
+	end
+
+	local servers = {}
+	for _, v in ipairs(body.data) do
+		if type(v) == "table"
+			and tonumber(v.playing)
+			and tonumber(v.maxPlayers)
+			and v.playing < v.maxPlayers
+			and v.id ~= JobId then
+			table.insert(servers, v.id)
+		end
+	end
+
+	if #servers == 0 then
+		return warn("[Server Hop] No available servers found")
+	end
+
+	local choice = servers[math.random(1, #servers)]
+	TeleportService:TeleportToPlaceInstance(PlaceId, choice, Players.LocalPlayer)
+end, "Utility")
+
 FunctionManager:register("TP Behind Closest", function()
 
 	if not  HRP then
@@ -1060,11 +1111,6 @@ FunctionManager:register("Invisible", function()
 end, "Fun")
 
 
-FunctionManager:register("Server Hop", function()
-	local placeId = game.PlaceId
-	TeleportService:Teleport(placeId, Player)
-	warn("Hopping to a new server in this place...")
-end, "Utility")
 FunctionManager:register("Fly", function()
 	if not HRP then
 		warn("No HumanoidRootPart found; cannot fly.")
