@@ -34,6 +34,15 @@ local flyingEnabled = false
 local flyBG, flyBV, flyConn
 local ray = workspace.CurrentCamera:ScreenPointToRay(Mouse.X, Mouse.Y)
 local hit, pos = workspace:FindPartOnRay(ray, Character)
+--GUI settings
+local GUI_WIDTH     = 400
+local GUI_HEIGHT    = 320
+local TITLE_HEIGHT  = 30
+local NAV_HEIGHT    = 30
+local FOOTER_HEIGHT = 30
+local GRID_PADDING  = 4
+local GRID_COLUMNS  = 4
+
 local FunctionManager = {
 	CategorizedFunctions = {},
 	Categories = {},
@@ -77,15 +86,6 @@ function FunctionManager:cycleCategory()
 end
 
 
-
-
-local GUI_WIDTH     = 400
-local GUI_HEIGHT    = 320
-local TITLE_HEIGHT  = 30
-local NAV_HEIGHT    = 30
-local FOOTER_HEIGHT = 30
-local GRID_PADDING  = 4
-local GRID_COLUMNS  = 4
 
 local oldGui = PlayerGui:FindFirstChild("FunctionGui")
 if oldGui then
