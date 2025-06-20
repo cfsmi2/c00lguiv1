@@ -97,7 +97,7 @@ end
 
 
 
-local oldGui = PlayerGui:FindFirstChild("FunctionGui")
+local oldGui = PlayerGui:FindFirstChild("C00lGUI")
 if oldGui then
 	oldGui:Destroy()
 end
@@ -113,7 +113,6 @@ mainFrame.Size = UDim2.new(0, GUI_WIDTH, 0, GUI_HEIGHT)
 mainFrame.Position = UDim2.new(0.5, -GUI_WIDTH/2, 0.5, -GUI_HEIGHT/2)
 mainFrame.BackgroundColor3 = Color3.fromRGB(25, 5, 5)
 mainFrame.BorderSizePixel = 0
-mainFrame.ClipsDescendants = true
 mainFrame.Parent = screenGui
 
 local titleBar = Instance.new("Frame")
@@ -307,6 +306,15 @@ minBtn.MouseButton1Click:Connect(function()
 	end
 	
 end)
+local logo = Instance.new("ImageLabel")
+logo.Name                 = "Logo"
+logo.BackgroundTransparency = 1
+logo.Size                 = UDim2.new(1, 0, 0, 100)
+logo.Position             = UDim2.new(0, -50, 0, -100)
+logo.Image                = "rbxassetid://87486058304609"
+logo.ScaleType            = Enum.ScaleType.Fit              
+logo.Parent               = mainFrame
+
 
 FunctionManager:register("Bind Key", function()
 	if bindFrame then return end 
