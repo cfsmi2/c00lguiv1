@@ -8,16 +8,34 @@ local Character       = Player.Character or Player.CharacterAdded:Wait()
 local Humanoid        = Character:WaitForChild("Humanoid")
 local HRP             = Character:WaitForChild("HumanoidRootPart")
 local Mouse           = Player:GetMouse()
+local CollectionService = game:GetService("CollectionService")
+local RunService = game:GetService("RunService")
+local TeleportService = game:GetService("TeleportService")
 --settings
 local infjump = false
 local invisRunning = false
 local noclipOn = false
 local noclipConn
 local hoverHeight
+local bindFrame, bindConn, waitingBindFunction
+local customBinds = {}
+local infJumpEnabled = false
+local infJumpConnection = nil
+local espOn = false
+espOn = not espOn
+local spinOn = false
+local spinBAV, lockBP
+local savedCFrame
+local invisRunning = false
+local InvisibleCharacter = nil
+local OriginalCharacter = nil
+local voidConn = nil
+
 -- Flight variables
 local flyingEnabled = false
 local flyBG, flyBV, flyConn
-
+local ray = workspace.CurrentCamera:ScreenPointToRay(Mouse.X, Mouse.Y)
+local hit, pos = workspace:FindPartOnRay(ray, Character)
 local FunctionManager = {
 	CategorizedFunctions = {},
 	Categories = {},
@@ -282,10 +300,134 @@ minBtn.MouseButton1Click:Connect(function()
 	
 end)
 
-FunctionManager:register("test", function()
-	print("Hello!")
-end, "General")
+FunctionManager:register("Bind Key", function()
+	if bindFrame then return end 
 
+	local gui = Player:FindFirstChild("PlayerGui"):FindFirstChild("C00lGUI")
+	if not gui then warn("Gui not found!"); return end
+	screenGui = gui
+
+	bindFrame = Instance.new("Frame")
+	bindFrame.Name = "BindKeyModal"
+	bindFrame.Size = UDim2.new(1,0,1,0)
+	bindFrame.BackgroundColor3 = Color3.new(0,0,0)
+	bindFrame.BackgroundTransparency = 0.5
+	bindFrame.ZIndex = 50
+	bindFrame.Parent = screenGui
+
+	local panel = Instance.new("Frame")
+	panel.Name = "BindPanel"
+	panel.Size = UDim2.new(0, 300, 0, 400)
+	panel.Position = UDim2.new(0.5, -150, 0.5, -200)
+	panel.BackgroundColor3 = Color3.fromRGB(35,35,35)
+	panel.BorderSizePixel = 0
+	panel.ZIndex = 51
+	panel.Parent = bindFrame
+
+	local closeBtn = Instance.new("TextButton")
+	closeBtn.Size = UDim2.new(0, 60, 0, 24)
+	closeBtn.Position = UDim2.new(1, -64, 0, 4)
+	closeBtn.Text = "Close"
+	closeBtn.Font = Enum.Font.SourceSansBold
+	closeBtn.TextSize = 14
+	closeBtn.BackgroundColor3 = Color3.fromRGB(150,50,50)
+	closeBtn.TextColor3 = Color3.new(1,1,1)
+	closeBtn.ZIndex = 52
+	closeBtn.Parent = panel
+	closeBtn.MouseButton1Click:Connect(function()
+		bindFrame:Destroy()
+		bindFrame = nil
+		if bindConn then bindConn:Disconnect(); bindConn = nil end
+	end)
+
+	local title = Instance.new("TextLabel")
+	title.Size = UDim2.new(1, -8, 0, 24)
+	title.Position = UDim2.new(0, 4, 0, 4)
+	title.BackgroundTransparency = 1
+	title.Font = Enum.Font.SourceSansBold
+	title.TextSize = 18
+	title.TextColor3 = Color3.new(1,1,1)
+	title.Text = "Bind Key to Function"
+	title.ZIndex = 52
+	title.Parent = panel
+
+	local list = Instance.new("ScrollingFrame")
+	list.Size = UDim2.new(1, -8, 1, -40)
+	list.Position = UDim2.new(0, 4, 0, 32)
+	list.CanvasSize = UDim2.new(0,0,0,0)
+	list.ScrollBarThickness = 6
+	list.ZIndex = 51
+	list.Parent = panel
+
+	local uiList = Instance.new("UIListLayout")
+	uiList.Padding = UDim.new(0,4)
+	uiList.SortOrder = Enum.SortOrder.LayoutOrder
+	uiList.Parent = list
+
+	local function refreshList()
+		for _, child in ipairs(list:GetChildren()) do
+			if child:IsA("TextButton") or child:IsA("TextLabel") then
+				child:Destroy()
+			end
+		end
+
+		for _, cat in ipairs(FunctionManager.Categories) do
+			local hdr = Instance.new("TextLabel")
+			hdr.Size = UDim2.new(1,0,0,24)
+			hdr.BackgroundTransparency = 1
+			hdr.Font = Enum.Font.SourceSansBold
+			hdr.TextSize = 16
+			hdr.TextColor3 = Color3.new(1,1,0)
+			hdr.Text = "["..cat.."]"
+			hdr.ZIndex = 51
+			hdr.Parent = list
+
+			for name, cb in pairs(FunctionManager:getFunctionsInCategory(cat)) do
+				local btn = Instance.new("TextButton")
+				btn.Size = UDim2.new(1,0,0,24)
+				btn.Font = Enum.Font.SourceSans
+				btn.TextSize = 14
+				btn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+				btn.TextColor3 = Color3.new(1,1,1)
+				btn.ZIndex = 51
+
+				local bound = {}
+				for key, fn in pairs(customBinds) do
+					if fn == cb then table.insert(bound, tostring(key)) end
+				end
+				local suffix = #bound>0 and " ("..table.concat(bound, ",")..")" or ""
+				btn.Text = name..suffix
+				btn.Parent = list
+
+				btn.MouseButton1Click:Connect(function()
+					waitingBindFunction = { cb = cb, btn = btn, name = name }
+					btn.Text = name.." → [Press a key]"
+				end)
+			end
+		end
+
+		list.CanvasSize = UDim2.new(0,0,0, uiList.AbsoluteContentSize.Y + 8)
+	end
+	bindConn = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+		if gameProcessed or not waitingBindFunction then return end
+		if input.UserInputType == Enum.UserInputType.Keyboard then
+			customBinds[input.KeyCode] = waitingBindFunction.cb
+			waitingBindFunction.btn.Text = waitingBindFunction.name.." ("..tostring(input.KeyCode)..")"
+			waitingBindFunction = nil
+		end
+	end)
+	refreshList()
+
+end, "Utility")
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed then return end
+	if input.UserInputType == Enum.UserInputType.Keyboard then
+		local fn = customBinds[input.KeyCode]
+		if fn and type(fn) == "function" then
+			pcall(fn)
+		end
+	end
+end)
 FunctionManager:register("JumpUp", function()
 	local char = Player.Character
 	local hrp = char and char:FindFirstChild("HumanoidRootPart")
@@ -298,8 +440,6 @@ FunctionManager:register("Sit", function()
 	if hum then hum.Sit = true end
 end, "Movement")
 
-local infJumpEnabled = false
-local infJumpConnection = nil
 
 FunctionManager:register("INF JUMP", function()
 	infJumpEnabled = not infJumpEnabled
@@ -428,11 +568,8 @@ end, "Movement")
 
 
 FunctionManager:register("TP Behind Closest", function()
-	local speaker = Players.LocalPlayer
-	local character = speaker.Character
-	local root = character and character:FindFirstChild("HumanoidRootPart")
 
-	if not root then
+	if not  HRP then
 		warn("No HumanoidRootPart found.")
 		return
 	end
@@ -442,10 +579,10 @@ FunctionManager:register("TP Behind Closest", function()
 
 
 	for _, otherPlayer in ipairs(Players:GetPlayers()) do
-		if otherPlayer ~= speaker and otherPlayer.Character then
+		if otherPlayer ~= Player and otherPlayer.Character then
 			local otherRoot = otherPlayer.Character:FindFirstChild("HumanoidRootPart")
 			if otherRoot then
-				local distance = (otherRoot.Position - root.Position).Magnitude
+				local distance = (otherRoot.Position - HRP.Position).Magnitude
 				if distance < shortestDistance then
 					shortestDistance = distance
 					closestPlayer = otherPlayer
@@ -459,7 +596,7 @@ FunctionManager:register("TP Behind Closest", function()
 		if targetRoot then
 			local behindPosition = targetRoot.CFrame.Position - targetRoot.CFrame.LookVector * 3
 			local newCFrame = CFrame.new(behindPosition, targetRoot.Position) 
-			root.CFrame = newCFrame
+			HRP.CFrame = newCFrame
 
 			warn("Teleported behind", closestPlayer.Name)
 		end
@@ -468,20 +605,18 @@ FunctionManager:register("TP Behind Closest", function()
 	end
 end, "Movement")
 FunctionManager:register("Scare Closest Player", function()
-	local speaker = Players.LocalPlayer
-	local root = speaker.Character and speaker.Character:FindFirstChild("HumanoidRootPart")
 
-	if not root then
+	if not HRP then
 		warn("Could not find your HumanoidRootPart.")
 		return
 	end
 
 	local closestPlayer, closestDistance = nil, math.huge
 	for _, otherPlayer in ipairs(Players:GetPlayers()) do
-		if otherPlayer ~= speaker and otherPlayer.Character then
+		if otherPlayer ~= Player and otherPlayer.Character then
 			local otherRoot = otherPlayer.Character:FindFirstChild("HumanoidRootPart")
 			if otherRoot then
-				local dist = (otherRoot.Position - root.Position).Magnitude
+				local dist = (otherRoot.Position - HRP.Position).Magnitude
 				if dist < closestDistance then
 					closestDistance = dist
 					closestPlayer = otherPlayer
@@ -493,20 +628,17 @@ FunctionManager:register("Scare Closest Player", function()
 	if closestPlayer and closestPlayer.Character then
 		local targetRoot = closestPlayer.Character:FindFirstChild("HumanoidRootPart")
 		if targetRoot then
-			local oldPos = root.CFrame
-			root.CFrame = targetRoot.CFrame + targetRoot.CFrame.lookVector * 2
-			root.CFrame = CFrame.new(root.Position, targetRoot.Position)
+			local oldPos = HRP.CFrame
+			HRP.CFrame = targetRoot.CFrame + targetRoot.CFrame.lookVector * 2
+			HRP.CFrame = CFrame.new(HRP.Position, targetRoot.Position)
 			task.wait(0.5)
-			root.CFrame = oldPos
+			HRP.CFrame = oldPos
 		end
 	else
 		warn("No target player nearby.")
 	end
 end, "Fun")
-
-local espOn = false
 FunctionManager:register("ESP Toggle", function()
-	espOn = not espOn
 	for _, plr in ipairs(Players:GetPlayers()) do
 		if plr.Character and plr ~= Player then
 			local head = plr.Character:FindFirstChild("Head")
@@ -630,8 +762,7 @@ FunctionManager:register("JumpPower Slider", function()
 	end)
 end, "Movement")
 
-local spinOn = false
-local spinBAV, lockBP
+
 
 FunctionManager:register("Spin Bot", function()
 	spinOn = not spinOn
@@ -670,14 +801,11 @@ FunctionManager:register("Spin Bot", function()
 end, "Visual")
 
 FunctionManager:register("TP To Mouse", function()
-	local ray = workspace.CurrentCamera:ScreenPointToRay(Mouse.X, Mouse.Y)
-	local hit, pos = workspace:FindPartOnRay(ray, Character)
 	if hit then
 		HRP.CFrame = CFrame.new(pos + Vector3.new(0, 3, 0))
 		warn("Teleported to mouse")
 	end
 end, "Movement")
-local savedCFrame
 FunctionManager:register("Save Position", function()
 	savedCFrame = HRP.CFrame
 	warn("Position Saved")
@@ -724,9 +852,6 @@ FunctionManager:register("No‑Clip", function()
 	end
 end, "Movement")
 
-local CollectionService = game:GetService("CollectionService")
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
 FunctionManager:register("DarkDex", function()
 	--Maybe works?
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/Babyhamsta/RBLX_Scripts/main/Universal/BypassedDarkDexV3.lua", true))()	
@@ -841,10 +966,6 @@ FunctionManager:register("Orbit All Nearby Parts", function()
 end, "Fun")
 
 
-local invisRunning = false
-local InvisibleCharacter = nil
-local OriginalCharacter = nil
-local voidConn = nil
 
 FunctionManager:register("Invisible", function()
 	if not invisRunning then
@@ -940,16 +1061,13 @@ FunctionManager:register("Invisible", function()
 end, "Fun")
 
 
-local TeleportService = game:GetService("TeleportService")
 FunctionManager:register("Server Hop", function()
 	local placeId = game.PlaceId
 	TeleportService:Teleport(placeId, Player)
 	warn("Hopping to a new server in this place...")
 end, "Utility")
 FunctionManager:register("Fly", function()
-	local character = Player.Character or Player.CharacterAdded:Wait()
-	local hrp = character:FindFirstChild("HumanoidRootPart")
-	if not hrp then
+	if not HRP then
 		warn("No HumanoidRootPart found; cannot fly.")
 		return
 	end
@@ -961,14 +1079,14 @@ FunctionManager:register("Fly", function()
 		flyBG = Instance.new("BodyGyro")
 		flyBG.P = 9e4
 		flyBG.MaxTorque = Vector3.new(9e4, 9e4, 9e4)
-		flyBG.CFrame = hrp.CFrame
-		flyBG.Parent = hrp
+		flyBG.CFrame = HRP.CFrame
+		flyBG.Parent = HRP
 
 
 		flyBV = Instance.new("BodyVelocity")
 		flyBV.MaxForce = Vector3.new(9e4, 9e4, 9e4)
 		flyBV.Velocity = Vector3.new(0, 0, 0)
-		flyBV.Parent = hrp
+		flyBV.Parent = HRP
 
 		flyConn = RunService.Heartbeat:Connect(function()
 			local camCFrame = workspace.CurrentCamera.CFrame
@@ -997,7 +1115,7 @@ FunctionManager:register("Fly", function()
 				dir = dir.Unit * 50
 			end
 			flyBV.Velocity = dir
-			flyBG.CFrame = CFrame.new(hrp.Position, hrp.Position + camCFrame.LookVector)
+			flyBG.CFrame = CFrame.new(HRP.Position, HRP.Position + camCFrame.LookVector)
 		end)
 
 	else
@@ -1023,141 +1141,6 @@ end, "Troll")
 FunctionManager:register("Hat Script", function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/ocfi/Scp-096-Obfuscated/refs/heads/main/obuf"))()
 end, "Troll")
-
-
-
-local bindFrame, bindConn, waitingBindFunction
-local customBinds = {}
-
-FunctionManager:register("Bind Key", function()
-	if bindFrame then return end 
-
-	local gui = Player:FindFirstChild("PlayerGui"):FindFirstChild("C00lGUI")
-	if not gui then warn("Gui not found!"); return end
-	screenGui = gui
-
-	bindFrame = Instance.new("Frame")
-	bindFrame.Name = "BindKeyModal"
-	bindFrame.Size = UDim2.new(1,0,1,0)
-	bindFrame.BackgroundColor3 = Color3.new(0,0,0)
-	bindFrame.BackgroundTransparency = 0.5
-	bindFrame.ZIndex = 50
-	bindFrame.Parent = screenGui
-
-	local panel = Instance.new("Frame")
-	panel.Name = "BindPanel"
-	panel.Size = UDim2.new(0, 300, 0, 400)
-	panel.Position = UDim2.new(0.5, -150, 0.5, -200)
-	panel.BackgroundColor3 = Color3.fromRGB(35,35,35)
-	panel.BorderSizePixel = 0
-	panel.ZIndex = 51
-	panel.Parent = bindFrame
-
-	local closeBtn = Instance.new("TextButton")
-	closeBtn.Size = UDim2.new(0, 60, 0, 24)
-	closeBtn.Position = UDim2.new(1, -64, 0, 4)
-	closeBtn.Text = "Close"
-	closeBtn.Font = Enum.Font.SourceSansBold
-	closeBtn.TextSize = 14
-	closeBtn.BackgroundColor3 = Color3.fromRGB(150,50,50)
-	closeBtn.TextColor3 = Color3.new(1,1,1)
-	closeBtn.ZIndex = 52
-	closeBtn.Parent = panel
-	closeBtn.MouseButton1Click:Connect(function()
-		bindFrame:Destroy()
-		bindFrame = nil
-		if bindConn then bindConn:Disconnect(); bindConn = nil end
-	end)
-
-	local title = Instance.new("TextLabel")
-	title.Size = UDim2.new(1, -8, 0, 24)
-	title.Position = UDim2.new(0, 4, 0, 4)
-	title.BackgroundTransparency = 1
-	title.Font = Enum.Font.SourceSansBold
-	title.TextSize = 18
-	title.TextColor3 = Color3.new(1,1,1)
-	title.Text = "Bind Key to Function"
-	title.ZIndex = 52
-	title.Parent = panel
-
-	local list = Instance.new("ScrollingFrame")
-	list.Size = UDim2.new(1, -8, 1, -40)
-	list.Position = UDim2.new(0, 4, 0, 32)
-	list.CanvasSize = UDim2.new(0,0,0,0)
-	list.ScrollBarThickness = 6
-	list.ZIndex = 51
-	list.Parent = panel
-
-	local uiList = Instance.new("UIListLayout")
-	uiList.Padding = UDim.new(0,4)
-	uiList.SortOrder = Enum.SortOrder.LayoutOrder
-	uiList.Parent = list
-
-	local function refreshList()
-		for _, child in ipairs(list:GetChildren()) do
-			if child:IsA("TextButton") or child:IsA("TextLabel") then
-				child:Destroy()
-			end
-		end
-
-		for _, cat in ipairs(FunctionManager.Categories) do
-			local hdr = Instance.new("TextLabel")
-			hdr.Size = UDim2.new(1,0,0,24)
-			hdr.BackgroundTransparency = 1
-			hdr.Font = Enum.Font.SourceSansBold
-			hdr.TextSize = 16
-			hdr.TextColor3 = Color3.new(1,1,0)
-			hdr.Text = "["..cat.."]"
-			hdr.ZIndex = 51
-			hdr.Parent = list
-
-			for name, cb in pairs(FunctionManager:getFunctionsInCategory(cat)) do
-				local btn = Instance.new("TextButton")
-				btn.Size = UDim2.new(1,0,0,24)
-				btn.Font = Enum.Font.SourceSans
-				btn.TextSize = 14
-				btn.BackgroundColor3 = Color3.fromRGB(50,50,50)
-				btn.TextColor3 = Color3.new(1,1,1)
-				btn.ZIndex = 51
-
-				local bound = {}
-				for key, fn in pairs(customBinds) do
-					if fn == cb then table.insert(bound, tostring(key)) end
-				end
-				local suffix = #bound>0 and " ("..table.concat(bound, ",")..")" or ""
-				btn.Text = name..suffix
-				btn.Parent = list
-
-				btn.MouseButton1Click:Connect(function()
-					waitingBindFunction = { cb = cb, btn = btn, name = name }
-					btn.Text = name.." → [Press a key]"
-				end)
-			end
-		end
-
-		list.CanvasSize = UDim2.new(0,0,0, uiList.AbsoluteContentSize.Y + 8)
-	end
-	bindConn = UserInputService.InputBegan:Connect(function(input, gameProcessed)
-		if gameProcessed or not waitingBindFunction then return end
-		if input.UserInputType == Enum.UserInputType.Keyboard then
-			customBinds[input.KeyCode] = waitingBindFunction.cb
-			waitingBindFunction.btn.Text = waitingBindFunction.name.." ("..tostring(input.KeyCode)..")"
-			waitingBindFunction = nil
-		end
-	end)
-	refreshList()
-
-end, "Utility")
-
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-	if gameProcessed then return end
-	if input.UserInputType == Enum.UserInputType.Keyboard then
-		local fn = customBinds[input.KeyCode]
-		if fn and type(fn) == "function" then
-			pcall(fn)
-		end
-	end
-end)
 
 
 --init
