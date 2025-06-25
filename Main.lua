@@ -1213,11 +1213,12 @@ FunctionManager:register("Fly", function()
 	end
 end, "Movement", "Fly around!")
 
-
+FunctionManager:register("HatHub", function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/inkdupe/hat-scripts/refs/heads/main/updatedhathub.lua"))()
+end, "Credits to original maker!")
 FunctionManager:register("Hammer", function()
 	loadstring(game:HttpGet("https://pastebin.com/raw/q6yHJSXK", true))()
 end, "Troll", "ITS HAMMER TIME")
-
 FunctionManager:register("Hitbox Extender", function()
 	loadstring(game:HttpGet('https://raw.githubusercontent.com/AAPVdev/scripts/refs/heads/main/UI_LimbExtender.lua'))()
 end, "Troll", "Extends hitboxes")
