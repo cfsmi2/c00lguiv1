@@ -454,7 +454,7 @@ FunctionManager:register("Bind Key", function()
 	end)
 	refreshList()
 
-end, "Utility")
+end, "Utility", "BUGGED")
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	if gameProcessed then return end
 	if input.UserInputType == Enum.UserInputType.Keyboard then
@@ -468,13 +468,13 @@ FunctionManager:register("JumpUp", function()
 	local char = Player.Character
 	local hrp = char and char:FindFirstChild("HumanoidRootPart")
 	if hrp then hrp.Velocity = Vector3.new(0, 100, 0) end
-end, "Movement")
+end, "Movement", "Leap into the air!")
 
 
 FunctionManager:register("Sit", function()
 	local hum = Player.Character and Player.Character:FindFirstChildOfClass("Humanoid")
 	if hum then hum.Sit = true end
-end, "Movement")
+end, "Movement", "SIT DOWN")
 
 
 FunctionManager:register("INF JUMP", function()
@@ -502,7 +502,7 @@ FunctionManager:register("INF JUMP", function()
 			infJumpConnection = nil
 		end
 	end
-end, "Movement")
+end, "Movement", "Jump Forever!")
 
 FunctionManager:register("WalkSpeed Slider", function()
 	if screenGui:FindFirstChild("WalkSpeedModal") then return end
@@ -600,7 +600,7 @@ FunctionManager:register("WalkSpeed Slider", function()
 			update(i.Position.X)
 		end
 	end)
-end, "Movement")
+end, "Movement", "Control your walkspeed!")
 
 
 
@@ -642,7 +642,7 @@ FunctionManager:register("Server Hop", function()
 
 	local choice = servers[math.random(1, #servers)]
 	TeleportService:TeleportToPlaceInstance(PlaceId, choice, Players.LocalPlayer)
-end, "Utility")
+end, "Utility","Changes Servers")
 
 FunctionManager:register("TP Behind Closest", function()
 
@@ -680,7 +680,7 @@ FunctionManager:register("TP Behind Closest", function()
 	else
 		warn("No nearby player found.")
 	end
-end, "Movement")
+end, "Movement", "Owai moi, shinderu. NANI?")
 FunctionManager:register("Scare Closest Player", function()
 
 	if not HRP then
@@ -714,7 +714,7 @@ FunctionManager:register("Scare Closest Player", function()
 	else
 		warn("No target player nearby.")
 	end
-end, "Fun")
+end, "Fun", "FNAF reference")
 FunctionManager:register("ESP Toggle", function()
 	espOn = not espOn
 	for _, plr in ipairs(Players:GetPlayers()) do
@@ -737,7 +737,7 @@ FunctionManager:register("ESP Toggle", function()
 		end
 	end
 	warn("ESP " .. (espOn and "Enabled" or "Disabled"))
-end, "Visual")
+end, "Visual", "ur cooked i just got wallhacks")
 FunctionManager:register("JumpPowerSlider", function()
 	if screenGui:FindFirstChild("JumpPowerModal") then return end
 	Humanoid.UseJumpPower = true
@@ -838,7 +838,7 @@ FunctionManager:register("JumpPowerSlider", function()
 			update(i.Position.X)
 		end
 	end)
-end, "Movement")
+end, "Movement", "Control your jumppower")
 
 
 
@@ -876,18 +876,18 @@ FunctionManager:register("Spin Bot", function()
 		end
 		warn("Locked Spin Bot Off")
 	end
-end, "Visual")
+end, "Visual", "Speeeeen")
 
 FunctionManager:register("TP To Mouse", function()
 	if hit then
 		HRP.CFrame = CFrame.new(pos + Vector3.new(0, 3, 0))
 		warn("Teleported to mouse")
 	end
-end, "Movement")
+end, "Movement", "BUGGED")
 FunctionManager:register("Save Position", function()
 	savedCFrame = HRP.CFrame
 	warn("Position Saved")
-end, "Utility")
+end, "Utility", "Checkpoint")
 FunctionManager:register("Load Position", function()
 	if savedCFrame then
 		HRP.CFrame = savedCFrame
@@ -895,7 +895,7 @@ FunctionManager:register("Load Position", function()
 	else
 		warn("No Position Saved")
 	end
-end, "Utility")
+end, "Utility", "Reload")
 
 
 FunctionManager:register("No‑Clip", function()
@@ -933,11 +933,11 @@ end, "Movement", "NOCLIP")
 FunctionManager:register("DarkDex", function()
 	--Maybe works?
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/Babyhamsta/RBLX_Scripts/main/Universal/BypassedDarkDexV3.lua", true))()	
-end, "General")
+end, "General", "Take a peek under the hood")
 FunctionManager:register("SimpleSpy", function()
 	--also maybe works?
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua"))()
-end)
+end, "Catch remotes")
 FunctionManager:register("Orbit All Nearby Parts", function()
 	local radius = 20
 	local height = 3
@@ -1041,7 +1041,7 @@ FunctionManager:register("Orbit All Nearby Parts", function()
 	end
 
 	warn("Orbiting", #orbitParts, "parts around you.")
-end, "Fun")
+end, "Fun", "You have to be near the parts for a while for it to work")
 
 
 
@@ -1208,22 +1208,22 @@ FunctionManager:register("Fly", function()
 
 
 	end
-end, "Movement")
+end, "Movement", "Fly around!")
 
 
 FunctionManager:register("Hammer", function()
 	loadstring(game:HttpGet("https://pastebin.com/raw/q6yHJSXK", true))()
-end, "Troll")
+end, "Troll", "ITS HAMMER TIME")
 
 FunctionManager:register("Hitbox Extender", function()
 	loadstring(game:HttpGet('https://raw.githubusercontent.com/AAPVdev/scripts/refs/heads/main/UI_LimbExtender.lua'))()
-end, "Troll")
+end, "Troll", "Extends hitboxes")
 FunctionManager:register("Part Grab", function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/v0c0n1337/scripts/refs/heads/main/Unachored_parts_controller_v2.lua.txt"))()
-end, "Troll")
+end, "Troll", "Much better part grab")
 FunctionManager:register("Hat Script", function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/ocfi/Scp-096-Obfuscated/refs/heads/main/obuf"))()
-end, "Troll")
+end, "Troll", "HATS")
 
 
 
