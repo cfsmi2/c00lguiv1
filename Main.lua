@@ -70,6 +70,13 @@ local function Notify(text, title, duration)
 		Duration = duration or 5;
 	})
 end
+local function NotifyERROR(text)
+	StarterGui:SetCore("SendNotification", {
+		Title = "ERROR";
+		Text  = text;
+		Duration = 5;
+	})
+end
 Notify("Welcome to C00lClan!", "Have fun!", 3)
 local function generate_string(length)
 	local random_string = {}
@@ -340,7 +347,7 @@ FunctionManager:register("Bind Key", function()
 	if bindFrame then return end 
 
 	local gui = Player:FindFirstChild("PlayerGui"):FindFirstChild(die)
-	if not gui then warn("Gui not found!"); return end
+	if not gui then NotifyERROR("Gui not found!"); return end
 	screenGui = gui
 
 	bindFrame = Instance.new("Frame")
@@ -614,7 +621,7 @@ FunctionManager:register("Server Hop", function()
 	end)
 
 	if not success then
-		return warn("[Server Hop] HTTP request failed:", res)
+		return NotifyERROR("[Server Hop] HTTP request failed")
 	end
 
 	local body
@@ -622,7 +629,7 @@ FunctionManager:register("Server Hop", function()
 		body = HttpService:JSONDecode(res)
 	end)
 	if not ok or type(body) ~= "table" or type(body.data) ~= "table" then
-		return warn("[Server Hop] Invalid JSON response")
+		return NotifyERROR("[Server Hop] Invalid JSON response")
 	end
 
 	local servers = {}
@@ -637,7 +644,7 @@ FunctionManager:register("Server Hop", function()
 	end
 
 	if #servers == 0 then
-		return warn("[Server Hop] No available servers found")
+		return NotifyERROR("[Server Hop] No available servers found")
 	end
 
 	local choice = servers[math.random(1, #servers)]
@@ -647,7 +654,7 @@ end, "Utility","Changes Servers")
 FunctionManager:register("TP Behind Closest", function()
 
 	if not  HRP then
-		warn("No HumanoidRootPart found.")
+		NotifyERROR("No HumanoidRootPart found.")
 		return
 	end
 
@@ -674,17 +681,15 @@ FunctionManager:register("TP Behind Closest", function()
 			local behindPosition = targetRoot.CFrame.Position - targetRoot.CFrame.LookVector * 3
 			local newCFrame = CFrame.new(behindPosition, targetRoot.Position) 
 			HRP.CFrame = newCFrame
-
-			warn("Teleported behind", closestPlayer.Name)
 		end
 	else
-		warn("No nearby player found.")
+		NotifyERROR("No nearby player found.")
 	end
 end, "Movement", "Owai moi, shinderu. NANI?")
 FunctionManager:register("Scare Closest Player", function()
 
 	if not HRP then
-		warn("Could not find your HumanoidRootPart.")
+		NotifyERROR("Could not find your HumanoidRootPart.")
 		return
 	end
 
@@ -712,7 +717,7 @@ FunctionManager:register("Scare Closest Player", function()
 			HRP.CFrame = oldPos
 		end
 	else
-		warn("No target player nearby.")
+		NotifyERROR("No target player nearby.")
 	end
 end, "Fun", "FNAF reference")
 FunctionManager:register("ESP Toggle", function()
@@ -736,7 +741,7 @@ FunctionManager:register("ESP Toggle", function()
 			end
 		end
 	end
-	warn("ESP " .. (espOn and "Enabled" or "Disabled"))
+	NotifyERROR("ESP " .. (espOn and "Enabled" or "Disabled"))
 end, "Visual", "ur cooked i just got wallhacks")
 FunctionManager:register("JumpPowerSlider", function()
 	if screenGui:FindFirstChild("JumpPowerModal") then return end
@@ -845,7 +850,7 @@ end, "Movement", "Control your jumppower")
 FunctionManager:register("Spin Bot", function()
 	spinOn = not spinOn
 	if spinOn then
-		if not HRP then return warn("No HRP!") end
+		if not HRP then return NotifyERROR("No HRP!") end
 
 
 		lockBP = Instance.new("BodyPosition")
@@ -864,7 +869,7 @@ FunctionManager:register("Spin Bot", function()
 		spinBAV.P = 1e5
 		spinBAV.Parent = HRP
 
-		warn("Locked Spin Bot On")
+		NotifyERROR("Spin Bot On")
 	else
 		if spinBAV then
 			spinBAV:Destroy()
@@ -874,7 +879,7 @@ FunctionManager:register("Spin Bot", function()
 			lockBP:Destroy()
 			lockBP = nil
 		end
-		warn("Locked Spin Bot Off")
+		NotifyERROR("Spin Bot Off")
 	end
 end, "Visual", "Speeeeen")
 
@@ -886,14 +891,14 @@ FunctionManager:register("TP To Mouse", function()
 end, "Movement", "BUGGED")
 FunctionManager:register("Save Position", function()
 	savedCFrame = HRP.CFrame
-	warn("Position Saved")
+	Notify("Position Saved", "SYSTEM", 3)
 end, "Utility", "Checkpoint")
 FunctionManager:register("Load Position", function()
 	if savedCFrame then
 		HRP.CFrame = savedCFrame
-		warn("Position Loaded")
+		Notify("Position Loaded", "SYSTEM", 3)
 	else
-		warn("No Position Saved")
+		NotifyERROR("No Position Saved")
 	end
 end, "Utility", "Reload")
 
@@ -904,7 +909,9 @@ FunctionManager:register("No‑Clip", function()
 	if noclipOn then
 		hoverHeight = HRP.Position.Y
 
-		noclipConn = RunService.RenderStepped:Connect(function()
+		while noclipOn == true do
+			task.wait(0.01)
+		
 			for _, part in ipairs(Character:GetDescendants()) do
 				if part:IsA("BasePart") then
 					part.CanCollide = false
@@ -913,20 +920,16 @@ FunctionManager:register("No‑Clip", function()
 
 			local pos = HRP.Position
 			HRP.CFrame = CFrame.new(pos.X, hoverHeight, pos.Z)
-		end)
-
-		warn("No‑Clip ON (locked at height)")
-	else
-		if noclipConn then
-			noclipConn:Disconnect()
-			noclipConn = nil
 		end
+
+		Notify("No‑Clip ON (locked at height)", "SYSTEM", 3)
+	else
 		for _, part in ipairs(Character:GetDescendants()) do
 			if part:IsA("BasePart") then
 				part.CanCollide = true
 			end
 		end
-		warn("No‑Clip OFF")
+		Notify("No‑Clip OFF", "SYSTEM", 3)
 	end
 end, "Movement", "NOCLIP")
 
@@ -947,7 +950,7 @@ FunctionManager:register("Orbit All Nearby Parts", function()
 	local character = speaker.Character or speaker.CharacterAdded:Wait()
 	local root = character:FindFirstChild("HumanoidRootPart")
 	if not root then
-		warn("No HumanoidRootPart found.")
+		NotifyERROR("No HumanoidRootPart found.")
 		return
 	end
 
@@ -972,7 +975,7 @@ FunctionManager:register("Orbit All Nearby Parts", function()
 					if part:CanSetNetworkOwnership() then
 						part:SetNetworkOwner(speaker)
 					else
-						warn("Cannot set network owner for part:", part.Name)
+						NotifyERROR("Cannot set network owner for part:", part.Name)
 					end
 					part.CanCollide = false
 					CollectionService:AddTag(part, "OrbitPart")
