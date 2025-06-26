@@ -1215,7 +1215,7 @@ end, "Movement", "Fly around!")
 
 FunctionManager:register("HatHub", function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/inkdupe/hat-scripts/refs/heads/main/updatedhathub.lua"))()
-end, "Credits to original maker!")
+end, "Troll", "Credits to original maker!")
 FunctionManager:register("Hammer", function()
 	loadstring(game:HttpGet("https://pastebin.com/raw/q6yHJSXK", true))()
 end, "Troll", "ITS HAMMER TIME")
