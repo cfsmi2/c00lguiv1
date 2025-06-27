@@ -63,21 +63,9 @@ local table_concat = table.concat
 local character_set_amount = #character_set
 local number_one = 1
 local default_length = 10
-local function Notify(text, title, duration)
-	StarterGui:SetCore("SendNotification", {
-		Title = title or "";
-		Text  = text or "";
-		Duration = duration or 5;
-	})
-end
-local function NotifyERROR(text)
-	StarterGui:SetCore("SendNotification", {
-		Title = "ERROR";
-		Text  = text;
-		Duration = 5;
-	})
-end
-Notify("Welcome to C00lClan!", "Have fun!", 3)
+
+
+
 local function generate_string(length)
 	local random_string = {}
 
@@ -132,7 +120,87 @@ screenGui.Name        = generate_string(math_random(1, 10))
 local die = screenGui.Name
 screenGui.ResetOnSpawn= false
 screenGui.Parent      = PlayerGui
+local notificationContainer = Instance.new("Frame")
+notificationContainer.Name = "NotificationContainer"
+notificationContainer.Size = UDim2.new(1, 0, 1, 0)
+notificationContainer.Position = UDim2.new(0, 0, 0, 0)
+notificationContainer.BackgroundTransparency = 1
+notificationContainer.ZIndex = 100
+notificationContainer.Parent = screenGui
+local function Notify(text, title, duration)
+	duration = duration or 4
 
+	local frame = Instance.new("Frame")
+	frame.AnchorPoint = Vector2.new(1, 1)
+	frame.Size = UDim2.new(0, 300, 0, 70)
+	frame.Position = UDim2.new(1, 320, 1, -10) -- start off-screen
+	frame.BackgroundColor3 = Color3.fromRGB(40, 0, 0)
+	frame.BackgroundTransparency = 0
+	frame.BorderSizePixel = 0
+	frame.ZIndex = 200
+	frame.Parent = notificationContainer
+
+	local titleLabel = Instance.new("TextLabel")
+	titleLabel.BackgroundTransparency = 1
+	titleLabel.Size = UDim2.new(1, -10, 0, 24)
+	titleLabel.Position = UDim2.new(0, 5, 0, 4)
+	titleLabel.Font = Enum.Font.SourceSansBold
+	titleLabel.Text = title or "Notice"
+	titleLabel.TextColor3 = Color3.new(1, 1, 1)
+	titleLabel.TextSize = 18
+	titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	titleLabel.ZIndex = 201
+	titleLabel.Parent = frame
+
+	local bodyLabel = Instance.new("TextLabel")
+	bodyLabel.BackgroundTransparency = 1
+	bodyLabel.Size = UDim2.new(1, -10, 1, -30)
+	bodyLabel.Position = UDim2.new(0, 5, 0, 28)
+	bodyLabel.Font = Enum.Font.SourceSans
+	bodyLabel.Text = text or ""
+	bodyLabel.TextColor3 = Color3.new(1, 1, 1)
+	bodyLabel.TextSize = 14
+	bodyLabel.TextWrapped = true
+	bodyLabel.TextXAlignment = Enum.TextXAlignment.Left
+	bodyLabel.ZIndex = 201
+	bodyLabel.Parent = frame
+
+	-- ✅ Slide in from right
+	task.defer(function()
+		local slideIn = TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			Position = UDim2.new(1, -10, 1, -10)
+		})
+		slideIn:Play()
+	end)
+
+	-- ✅ Fade out and destroy
+	task.delay(duration, function()
+		local fadeOut = TweenService:Create(frame, TweenInfo.new(0.3), {
+			BackgroundTransparency = 1,
+			Position = UDim2.new(1, 320, 1, -10)
+		})
+		local titleFade = TweenService:Create(titleLabel, TweenInfo.new(0.3), {TextTransparency = 1})
+		local bodyFade = TweenService:Create(bodyLabel, TweenInfo.new(0.3), {TextTransparency = 1})
+
+		fadeOut:Play()
+		titleFade:Play()
+		bodyFade:Play()
+
+		fadeOut.Completed:Wait()
+		frame:Destroy()
+	end)
+end
+
+
+
+
+local notificationLayout = Instance.new("UIListLayout")
+notificationLayout.SortOrder = Enum.SortOrder.LayoutOrder
+notificationLayout.Padding = UDim.new(0, 6)
+notificationLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+notificationLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+notificationLayout.Parent = notificationContainer
+Notify("Welcome to C00lClan!", "Have fun!", 3)
 -- Main frame
 local mainFrame = Instance.new("Frame")
 mainFrame.Name            = generate_string(math_random(1, 10))
@@ -278,7 +346,9 @@ minBtn.MouseButton1Click:Connect(function()
 	footer.Visible        = not minimized
 	minBtn.Text           = minimized and "◻" or "_"
 end)
-
+local function NotifyERROR(text)
+	Notify(text, "ERROR", 3)
+end
 -- Build the grid and tooltips
 local function updateGrid()
 	for _, c in ipairs(gridFrame:GetChildren()) do
@@ -975,7 +1045,7 @@ FunctionManager:register("Orbit All Nearby Parts", function()
 					if part:CanSetNetworkOwnership() then
 						part:SetNetworkOwner(speaker)
 					else
-						NotifyERROR("Cannot set network owner for part:", part.Name)
+						warn("Cannot set network owner for part:", part.Name)
 					end
 					part.CanCollide = false
 					CollectionService:AddTag(part, "OrbitPart")
@@ -1047,6 +1117,56 @@ FunctionManager:register("Orbit All Nearby Parts", function()
 end, "Fun", "You have to be near the parts for a while for it to work")
 
 
+local tracerEnabled = false
+local tracerFolder = Instance.new("Folder")
+tracerFolder.Name = "Tracers"
+tracerFolder.Parent = PlayerGui
+
+local tracerConnection
+
+FunctionManager:register("Tracer Lines", function()
+	tracerEnabled = not tracerEnabled
+
+	if tracerEnabled then
+		tracerConnection = RunService.RenderStepped:Connect(function()
+			for _, obj in ipairs(tracerFolder:GetChildren()) do
+				obj:Destroy()
+			end
+
+			for _, plr in ipairs(Players:GetPlayers()) do
+				if plr ~= Player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+					local hrp = plr.Character.HumanoidRootPart
+					local line = Instance.new("Frame")
+					local a = workspace.CurrentCamera:WorldToViewportPoint(hrp.Position)
+
+					if 1 == 1 then
+						local dir = (Vector2.new(a.X, a.Y) - Vector2.new(workspace.CurrentCamera.ViewportSize.X/2, workspace.CurrentCamera.ViewportSize.Y)).Unit
+						local dist = (Vector2.new(a.X, a.Y) - Vector2.new(workspace.CurrentCamera.ViewportSize.X/2, workspace.CurrentCamera.ViewportSize.Y)).Magnitude
+
+						line.Size = UDim2.new(0, 2, 0, dist)
+						line.Position = UDim2.new(0, workspace.CurrentCamera.ViewportSize.X/2, 0, workspace.CurrentCamera.ViewportSize.Y)
+						line.AnchorPoint = Vector2.new(0, 1)
+						line.Rotation = math.deg(math.atan2(dir.Y, dir.X)) - 90
+						line.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+						line.BorderSizePixel = 0
+						line.BackgroundTransparency = 0.2
+						line.Parent = tracerFolder
+					end
+				end
+			end
+		end)
+	else
+		if tracerConnection then
+			tracerConnection:Disconnect()
+			tracerConnection = nil
+		end
+		for _, obj in ipairs(tracerFolder:GetChildren()) do
+			obj:Destroy()
+		end
+	end
+
+	warn("Tracer Lines:", tracerEnabled and "Enabled" or "Disabled")
+end, "Visual")
 
 -- state for invisibility
 
@@ -1136,11 +1256,7 @@ local function toggleInvisibility()
 	player.Character.Animate.Enabled = false
 	player.Character.Animate.Enabled = true
 	-- finally, notify
-	StarterGui:SetCore("SendNotification", {
-		Title = "Invisible";
-		Text  = "You are now invisible";
-		Duration = 3;
-	})
+	Notify("You are now invisible!", "System", 3)
 end
 
 -- register it
