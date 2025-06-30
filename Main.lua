@@ -1183,60 +1183,6 @@ FunctionManager:register("Orbit All Nearby Parts", function()
 end, "Fun", "You have to be near the parts for a while for it to work")
 
 
-local tracerEnabled = false
-local tracerFolder = Instance.new("Folder")
-tracerFolder.Name = "Tracers"
-tracerFolder.Parent = PlayerGui
-
-local tracerConnection
-
-FunctionManager:register("Tracer Lines", function()
-	tracerEnabled = not tracerEnabled
-
-	if tracerEnabled then
-		tracerConnection = RunService.RenderStepped:Connect(function()
-			for _, obj in ipairs(tracerFolder:GetChildren()) do
-				obj:Destroy()
-			end
-
-			for _, plr in ipairs(Players:GetPlayers()) do
-				if plr ~= Player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-					local hrp = plr.Character.HumanoidRootPart
-					local line = Instance.new("Frame")
-					local a = workspace.CurrentCamera:WorldToViewportPoint(hrp.Position)
-
-					if 1 == 1 then
-						local dir = (Vector2.new(a.X, a.Y) - Vector2.new(workspace.CurrentCamera.ViewportSize.X/2, workspace.CurrentCamera.ViewportSize.Y)).Unit
-						local dist = (Vector2.new(a.X, a.Y) - Vector2.new(workspace.CurrentCamera.ViewportSize.X/2, workspace.CurrentCamera.ViewportSize.Y)).Magnitude
-
-						line.Size = UDim2.new(0, 2, 0, dist)
-						line.Position = UDim2.new(0, workspace.CurrentCamera.ViewportSize.X/2, 0, workspace.CurrentCamera.ViewportSize.Y)
-						line.AnchorPoint = Vector2.new(0, 1)
-						line.Rotation = math.deg(math.atan2(dir.Y, dir.X)) - 90
-						line.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-						line.BorderSizePixel = 0
-						line.BackgroundTransparency = 0.2
-						line.Parent = tracerFolder
-					end
-				end
-			end
-		end)
-	else
-		if tracerConnection then
-			tracerConnection:Disconnect()
-			tracerConnection = nil
-		end
-		for _, obj in ipairs(tracerFolder:GetChildren()) do
-			obj:Destroy()
-		end
-	end
-
-	warn("Tracer Lines:", tracerEnabled and "Enabled" or "Disabled")
-end, "Visual")
-
--- state for invisibility
-
-
 local function toggleInvisibility()
 	if invisRunning then return end
 	invisRunning = true
@@ -1321,11 +1267,9 @@ local function toggleInvisibility()
 	player.Character.Head.Anchored = false
 	player.Character.Animate.Enabled = false
 	player.Character.Animate.Enabled = true
-	-- finally, notify
 	Notify("You are now invisible!", "System", 3)
 end
 
--- register it
 FunctionManager:register(
 	"Invisible",
 	toggleInvisibility,
