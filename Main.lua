@@ -20,6 +20,8 @@ local StarterGui = game:GetService("StarterGui")
 local Debris = game:GetService("Debris")
 local Lighting = game:GetService("Lighting")
 local SoundService = game:GetService("SoundService")
+local player = Player
+
 local PlaceId = game.PlaceId
 local JobId = game.JobId
 --settings
@@ -89,6 +91,7 @@ local FunctionManager = {
 
 function FunctionManager:register(name, callback, category, description)
 	category = category or "General"
+	
 	if not self.CategorizedFunctions[category] then
 		self.CategorizedFunctions[category] = {}
 		table.insert(self.Categories, category)
@@ -111,7 +114,6 @@ end
 
 
 
--- ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name        = generate_string(math_random(1, 10))
 local die = screenGui.Name
@@ -130,7 +132,7 @@ local function Notify(text, title, duration)
 	local frame = Instance.new("Frame")
 	frame.AnchorPoint = Vector2.new(1, 1)
 	frame.Size = UDim2.new(0, 300, 0, 70)
-	frame.Position = UDim2.new(1, 320, 1, -10) -- start off-screen
+	frame.Position = UDim2.new(1, 320, 1, -10)
 	frame.BackgroundColor3 = Color3.fromRGB(40, 0, 0)
 	frame.BackgroundTransparency = 0
 	frame.BorderSizePixel = 0
@@ -162,7 +164,6 @@ local function Notify(text, title, duration)
 	bodyLabel.ZIndex = 201
 	bodyLabel.Parent = frame
 
-	-- ✅ Slide in from right
 	task.defer(function()
 		local slideIn = TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 			Position = UDim2.new(1, -10, 1, -10)
@@ -170,7 +171,7 @@ local function Notify(text, title, duration)
 		slideIn:Play()
 	end)
 
-	-- ✅ Fade out and destroy
+
 	task.delay(duration, function()
 		local fadeOut = TweenService:Create(frame, TweenInfo.new(0.3), {
 			BackgroundTransparency = 1,
@@ -406,6 +407,7 @@ end)
 FunctionManager.OnFunctionAdded.Event:Connect(updateGrid)
 
 
+
 -- Initialize
 updateGrid()
 
@@ -478,7 +480,580 @@ FunctionManager:register("Decal Spam", function()
 		emit.Texture = "http://www.roblox.com/asset/?id=8408806737"
 		emit.VelocitySpread = 20
 	end
+	while true do
+		game.Lighting.Ambient = Color3.new(math.random() , math.random() , math.random())
+		wait(0.2)
+		game.Lighting.ShadowColor = Color3.new(math.random() , math.random() , math.random())
+		wait(0.2) 
+	end
 end, "Troll", "NOT FE")
+FunctionManager:register("JOHN DOE", function()
+
+	local redSkyboxAssetId = "rbxassetid://1012887"
+	local sky = Lighting:FindFirstChildOfClass("Sky")
+	if not sky then
+		sky = Instance.new("Sky", Lighting)
+	end
+	sky.SkyboxBk = redSkyboxAssetId
+	sky.SkyboxDn = redSkyboxAssetId
+	sky.SkyboxFt = redSkyboxAssetId
+	sky.SkyboxLf = redSkyboxAssetId
+	sky.SkyboxRt = redSkyboxAssetId
+	sky.SkyboxUp = redSkyboxAssetId
+
+	if not ReplicatedStorage:FindFirstChild("juisdfj0i32i0eidsuf0iok") then
+		local detection = Instance.new("Decal")
+		detection.Name = "juisdfj0i32i0eidsuf0iok"
+		detection.Parent = ReplicatedStorage
+	end
+
+	local screenGui = Instance.new("ScreenGui")
+	screenGui.Name = "PersistentSoundGui"
+	screenGui.ResetOnSpawn = false
+	screenGui.Parent = player:WaitForChild("PlayerGui")
+
+	local button = Instance.new("TextButton")
+	button.Size = UDim2.new(0, 150, 0, 50)
+	button.Position = UDim2.new(0.02, 0, 0.477, 0)
+	button.Text = "Sound Toggle"
+	button.Font = Enum.Font.SourceSansBold
+	button.TextSize = 20
+	button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	button.TextColor3 = Color3.new(1, 1, 1)
+	button.Parent = screenGui
+
+	local backgroundSound = SoundService:FindFirstChild("PersistentBGSound")
+	if not backgroundSound then
+		backgroundSound = Instance.new("Sound")
+		backgroundSound.Name = "PersistentBGSound"
+		backgroundSound.SoundId = "rbxassetid://19094700"
+		backgroundSound.PlaybackSpeed = 0.221
+		backgroundSound.Looped = true
+		backgroundSound.Volume = 1
+		backgroundSound.Parent = SoundService
+		backgroundSound:Play()
+	end
+
+	button.Activated:Connect(function()
+		backgroundSound.Playing = not backgroundSound.Playing
+	end)
+
+	local function setupCharacter(character)
+		local humanoid = character:WaitForChild("Humanoid")
+		local torso = character:WaitForChild("Torso")
+		local hrp = character:WaitForChild("HumanoidRootPart")
+
+		local tool = Instance.new("Tool")
+		tool.Name = "Slash"
+		tool.RequiresHandle = false
+		tool.Parent = player.Backpack
+
+		tool.Activated:Connect(function()
+			local animation = Instance.new("Animation")
+			animation.AnimationId = "rbxassetid://186934658"
+			local track = humanoid:LoadAnimation(animation)
+			track:Play()
+			track:AdjustSpeed(2)
+
+			local s = Instance.new("Sound", torso)
+			s.SoundId = "rbxassetid://28144425"
+			s:Play()
+
+			task.wait(0.2)
+
+			local s2 = Instance.new("Sound", torso)
+			s2.SoundId = "rbxassetid://429400881"
+			s2.Volume = 0.2
+			s2:Play()
+		end)
+
+		local naeeym = Instance.new("BillboardGui", character)
+		naeeym.Size = UDim2.new(0, 100, 0, 40)
+		naeeym.StudsOffset = Vector3.new(0, 2, 0)
+		naeeym.Adornee = character:WaitForChild("Head")
+
+		local tecks = Instance.new("TextLabel", naeeym)
+		tecks.BackgroundTransparency = 1
+		tecks.BorderSizePixel = 0
+		tecks.Font = Enum.Font.Fantasy
+		tecks.TextSize = 24
+		tecks.TextStrokeTransparency = 0
+		tecks.TextStrokeColor3 = Color3.new(0, 0, 0)
+		tecks.TextColor3 = Color3.new(0, 0, 0)
+		tecks.Size = UDim2.new(1, 0, 0.5, 0)
+		tecks.Text = "John Doe"
+
+		local function changeName(newName)
+			tecks.Text = newName
+		end
+
+		local function shakeTag()
+			local originalOffset = naeeym.StudsOffset
+			for _ = 1, 10 do
+				naeeym.StudsOffset = originalOffset + Vector3.new(math.random(-1,1), math.random(-1,1), math.random(-1,1))
+				task.wait(0.05)
+			end
+			naeeym.StudsOffset = originalOffset
+		end
+
+		coroutine.wrap(function()
+			while character:IsDescendantOf(workspace) do
+				changeName("BURN IN HELL")
+				shakeTag()
+				task.wait(0.2)
+				changeName("STOP")
+				task.wait(0.1)
+				changeName("JUST GIVE UP")
+				shakeTag()
+				task.wait(0.2)
+				changeName("STOP")
+				shakeTag()
+				task.wait(0.2)
+				changeName("JOHN DOE")
+				shakeTag()
+				task.wait(0.3)
+				changeName("HOPELESS")
+				shakeTag()
+				task.wait(0.3)
+			end
+		end)()
+
+		local footPartSize = Vector3.new(10, 0.5, 10)
+		local floorPartColor = BrickColor.Black()
+		local floorMaterial = Enum.Material.Neon
+		local yOffset = -2.8
+		local lastPosition = hrp.Position
+		local standingTimer = 0
+
+		RunService.Heartbeat:Connect(function(dt)
+			if not character:IsDescendantOf(workspace) then return end
+			local currentPosition = hrp.Position
+			standingTimer += dt
+			local distanceMoved = (currentPosition - lastPosition).Magnitude
+			local stepPosition = Vector3.new(currentPosition.X, hrp.Position.Y + yOffset, currentPosition.Z)
+
+			local function createFootstep(position)
+				local part = Instance.new("Part")
+				part.Size = footPartSize
+				part.Position = position
+				part.Anchored = true
+				part.CanCollide = false
+				part.BrickColor = floorPartColor
+				part.Material = floorMaterial
+				part.Transparency = 0.5
+				part.Parent = workspace
+				task.spawn(function()
+					for i = 1, 10 do
+						part.Transparency = i * 0.03
+						task.wait(0.05)
+					end
+				end)
+				Debris:AddItem(part, 1)
+			end
+
+			if distanceMoved > 1 then
+				createFootstep(stepPosition)
+				lastPosition = currentPosition
+				standingTimer = 0
+			elseif standingTimer > 0.5 then
+				createFootstep(stepPosition)
+				standingTimer = 0
+			end
+		end)
+
+		local movel = 0.1
+		local hiddenfling = true
+
+		local function fling()
+			while hiddenfling and character:IsDescendantOf(workspace) do
+				if hrp then
+					local originalVelocity = hrp.Velocity
+					hrp.Velocity = originalVelocity * 10000 + Vector3.new(0, 10000, 0)
+					RunService.RenderStepped:Wait()
+					hrp.Velocity = originalVelocity
+					RunService.Stepped:Wait()
+					hrp.Velocity = originalVelocity + Vector3.new(0, movel, 0)
+					movel = -movel
+				end
+				RunService.Heartbeat:Wait()
+			end
+		end
+		coroutine.wrap(fling)()
+	end
+
+	player.CharacterAdded:Connect(setupCharacter)
+	if player.Character then
+		setupCharacter(player.Character)
+	end
+
+	local Players = game:GetService("Players")
+	local UserInputService = game:GetService("UserInputService")
+
+	local player = Players.LocalPlayer
+	local mouse = player:GetMouse()
+
+	local function teleportToMousePosition()
+		local character = player.Character
+		if not character or not character:FindFirstChild("HumanoidRootPart") then
+			return
+		end
+
+		local target = mouse.Hit
+		if target then
+			character:MoveTo(target.Position)
+		end
+	end
+
+	UserInputService.InputBegan:Connect(function(input, gameProcessed)
+		if gameProcessed then return end
+
+		if input.KeyCode == Enum.KeyCode.T then
+			teleportToMousePosition()
+		end
+	end)
+end, "Trolling", "BROKEN")
+FunctionManager:register("Invis gui", function()
+	loadstring(game:HttpGet('https://pastebin.com/raw/3Rnd9rHf'))()
+end, "Trolling", "Credits to the original maker!")
+FunctionManager:register("DANCE", function()
+	local anim = Instance.new("Animation")
+	anim.AnimationId = "rbxassetid://27789359" 
+	local track = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(anim)
+	track:Play()
+end, "Fun", "DANCE DANCE")
+FunctionManager:register("Sound GUI", function()
+	local gui = game.Players.LocalPlayer.PlayerGui:FindFirstChild("SoundGui")
+	if gui then
+		gui:Destroy()
+		return
+	end
+	local SoundGui = Instance.new("ScreenGui")
+	local Frame = Instance.new("Frame")
+	local AddSoundId = Instance.new("TextButton")
+	local SoundIds = Instance.new("TextBox")
+	local Default = Instance.new("TextButton")
+	local Credits = Instance.new("TextLabel")
+	local Title = Instance.new("TextLabel")
+	local Swap = Instance.new("ImageButton")
+	local PlayBackSpeed = Instance.new("TextBox")
+	local Volume = Instance.new("TextBox")
+	local Looped = Instance.new("TextBox")
+	local Exit = Instance.new("ImageButton")
+	local Frame2 = Instance.new("Frame")
+	local Open = Instance.new("ImageButton")
+	local spoky = Instance.new("Sound")
+	local c00lflag = Instance.new("Sound")
+	local drag = Instance.new("UIDragDetector")
+	drag.Parent = Frame
+	c00lflag.Name = "c00lsound23sas"
+	c00lflag.Parent = Frame
+	spoky.Parent = Frame
+	spoky.SoundId = "rbxassetid://95156028272944"
+	spoky.Volume = 3
+	spoky.PlaybackSpeed = 0.2
+	spoky.Name = "spoky"
+	--Properties:
+
+	SoundGui.Name = "SoundGui"
+	SoundGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+	SoundGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	SoundGui.ResetOnSpawn = false
+
+	Frame.Parent = SoundGui
+	Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	Frame.BorderColor3 = Color3.fromRGB(255, 0, 4)
+	Frame.BorderSizePixel = 2
+	Frame.Position = UDim2.new(0, 700, 0, 300)
+	Frame.Size = UDim2.new(0, 398, 0, 206)
+
+	AddSoundId.Name = "AddSoundId"
+	AddSoundId.Parent = Frame
+	AddSoundId.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	AddSoundId.BorderColor3 = Color3.fromRGB(255, 0, 0)
+	AddSoundId.BorderSizePixel = 2
+	AddSoundId.Position = UDim2.new(0.118090451, 0, 0.718446612, 0)
+	AddSoundId.Size = UDim2.new(0, 307, 0, 36)
+	AddSoundId.Font = Enum.Font.Arial
+	AddSoundId.Text = "Add Sound!"
+	AddSoundId.TextColor3 = Color3.fromRGB(255, 255, 255)
+	AddSoundId.TextSize = 29.000
+
+	SoundIds.Name = "SoundIds"
+	SoundIds.Parent = Frame
+	SoundIds.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	SoundIds.BorderColor3 = Color3.fromRGB(255, 0, 0)
+	SoundIds.BorderSizePixel = 2
+	SoundIds.Position = UDim2.new(0.118090451, 0, 0.305825233, 0)
+	SoundIds.Size = UDim2.new(0, 307, 0, 33)
+	SoundIds.Font = Enum.Font.Arial
+	SoundIds.PlaceholderText = "Add a sound ID here!, No rbx://"
+	SoundIds.Text = ""
+	SoundIds.TextColor3 = Color3.fromRGB(255, 255, 255)
+	SoundIds.TextScaled = true
+	SoundIds.TextSize = 14.000
+	SoundIds.TextWrapped = true
+
+	Default.Name = "Default"
+	Default.Parent = Frame
+	Default.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	Default.BorderColor3 = Color3.fromRGB(255, 0, 0)
+	Default.BorderSizePixel = 2
+	Default.Position = UDim2.new(0.118090451, 0, 0.529126227, 0)
+	Default.Size = UDim2.new(0, 307, 0, 28)
+	Default.Font = Enum.Font.Arial
+	Default.Text = "Spooky Scary Skeletons!"
+	Default.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Default.TextSize = 23.000
+
+	Credits.Name = "Credits"
+	Credits.Parent = Frame
+	Credits.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Credits.BackgroundTransparency = 1.000
+	Credits.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Credits.BorderSizePixel = 0
+	Credits.Position = UDim2.new(0.577889442, 0, 0.9174757, 0)
+	Credits.Size = UDim2.new(0, 153, 0, 17)
+	Credits.Font = Enum.Font.SourceSans
+	Credits.Text = "made by: 1known. On discord!"
+	Credits.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Credits.TextSize = 14.000
+
+	Title.Name = "Title"
+	Title.Parent = Frame
+	Title.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Title.BackgroundTransparency = 1.000
+	Title.BorderColor3 = Color3.fromRGB(255, 0, 4)
+	Title.BorderSizePixel = 2
+	Title.Position = UDim2.new(0.208542719, 0, 0.0291262139, 0)
+	Title.Size = UDim2.new(0, 231, 0, 48)
+	Title.Font = Enum.Font.Arial
+	Title.Text = "c00lSound GUI!"
+	Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Title.TextSize = 33.000
+	Title.TextWrapped = true
+
+	Swap.Name = "Swap"
+	Swap.Parent = Frame
+	Swap.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	Swap.BorderColor3 = Color3.fromRGB(255, 0, 0)
+	Swap.BorderSizePixel = 0
+	Swap.Position = UDim2.new(0.904522598, 0, 0.33495146, 0)
+	Swap.Size = UDim2.new(0, 23, 0, 21)
+	Swap.Image = "rbxassetid://2500573769"
+
+	PlayBackSpeed.Name = "PlayBackSpeed"
+	PlayBackSpeed.Parent = Frame
+	PlayBackSpeed.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	PlayBackSpeed.BorderColor3 = Color3.fromRGB(255, 0, 0)
+	PlayBackSpeed.BorderSizePixel = 2
+	PlayBackSpeed.Position = UDim2.new(0.118090451, 0, 0.305825233, 0)
+	PlayBackSpeed.Size = UDim2.new(0, 307, 0, 33)
+	PlayBackSpeed.Visible = false
+	PlayBackSpeed.Font = Enum.Font.Arial
+	PlayBackSpeed.PlaceholderText = "Playback speed, Enter a number!"
+	PlayBackSpeed.Text = "1"
+	PlayBackSpeed.TextColor3 = Color3.fromRGB(255, 255, 255)
+	PlayBackSpeed.TextScaled = true
+	PlayBackSpeed.TextSize = 14.000
+	PlayBackSpeed.TextWrapped = true
+
+	Volume.Name = "Volume"
+	Volume.Parent = Frame
+	Volume.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	Volume.BorderColor3 = Color3.fromRGB(255, 0, 0)
+	Volume.BorderSizePixel = 2
+	Volume.Position = UDim2.new(0.118090451, 0, 0.305825233, 0)
+	Volume.Size = UDim2.new(0, 307, 0, 33)
+	Volume.Visible = false
+	Volume.Font = Enum.Font.Arial
+	Volume.PlaceholderText = "Volume! Enter a number."
+	Volume.Text = "0.5"
+	Volume.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Volume.TextScaled = true
+	Volume.TextSize = 14.000
+	Volume.TextWrapped = true
+
+	Looped.Name = "Looped"
+	Looped.Parent = Frame
+	Looped.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	Looped.BorderColor3 = Color3.fromRGB(255, 0, 0)
+	Looped.BorderSizePixel = 2
+	Looped.Position = UDim2.new(0.118090451, 0, 0.305825233, 0)
+	Looped.Size = UDim2.new(0, 307, 0, 33)
+	Looped.Visible = false
+	Looped.Font = Enum.Font.Arial
+	Looped.PlaceholderText = "Is it looped?, Type: False or True"
+	Looped.Text = "False"
+	Looped.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Looped.TextScaled = true
+	Looped.TextSize = 14.000
+	Looped.TextWrapped = true
+
+	Exit.Name = "Exit"
+	Exit.Parent = Frame
+	Exit.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	Exit.BorderColor3 = Color3.fromRGB(255, 0, 0)
+	Exit.BorderSizePixel = 2
+	Exit.Position = UDim2.new(0.921999991, 0, 0.0289999992, 0)
+	Exit.Size = UDim2.new(0, 25, 0, 23)
+	Exit.Image = "rbxassetid://14930908086"
+
+	Frame2.Name = "Frame2"
+	Frame2.Parent = SoundGui
+	Frame2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Frame2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Frame2.BorderSizePixel = 0
+	Frame2.Position = UDim2.new(0.984443069, 0, 0.841666639, 0)
+	Frame2.Size = UDim2.new(0, 25, 0, 23)
+	Frame2.Visible = false
+
+	Open.Name = "Open"
+	Open.Parent = Frame2
+	Open.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	Open.BorderColor3 = Color3.fromRGB(255, 0, 0)
+	Open.BorderSizePixel = 2
+	Open.Position = UDim2.new(-0.0312646478, 0, -0.0113339629, 0)
+	Open.Size = UDim2.new(0, 25, 0, 23)
+	Open.Image = "rbxassetid://14930908086"
+
+	-- Scripts:
+
+	local function GSSVM_fake_script() -- AddSoundId.LocalScript 
+		local script = Instance.new('LocalScript', AddSoundId)
+
+		local parent = script.Parent
+
+		parent.Activated:Connect(function()
+			local SoundId = parent.Parent:WaitForChild("SoundIds").Text
+			local Playbackspeed = parent.Parent:WaitForChild("PlayBackSpeed").Text
+			local Volume = parent.Parent:WaitForChild("Volume").Text
+			local looped = parent.Parent:WaitForChild("Looped").Text
+			if SoundId == "" then
+				parent.Text = "No Sound ID!"
+				wait(2)
+				parent.Text = "Add Sound!"
+				return
+			end
+
+			local id = "rbxassetid://" .. SoundId
+			local speed = tonumber(Playbackspeed) or 1
+			local existingSound = game.Workspace:FindFirstChild("c00lsound23sas")
+
+			if existingSound then
+				existingSound.SoundId = id
+				existingSound.PlaybackSpeed = speed
+				existingSound.Volume = Volume
+				if looped == "False" then
+					existingSound.Looped = false
+				elseif looped == "True"	then
+					existingSound.Looped = true
+				else
+					existingSound.Looped = false
+				end
+				existingSound:Play()
+			else
+				local clonedSound = parent.Parent.c00lsound23sas:Clone()
+				clonedSound.Parent = game.Workspace
+				clonedSound.SoundId = id
+				clonedSound.PlaybackSpeed = speed
+				clonedSound.Volume = Volume
+				if looped == "False" then
+					clonedSound.Looped = false
+				elseif looped == "True"	then
+					clonedSound.Looped = true
+				else
+					clonedSound.Looped = false
+				end
+				clonedSound.Looped = looped
+
+				clonedSound:Play()
+			end
+
+			parent.Text = "Injected Sound Succesfully!, Be sure to enter a correct ID if it doesnt work!"
+			parent.TextScaled = true
+			wait(3.5)
+			parent.TextScaled = false
+			parent.Text = "Add Sound!"
+		end)
+
+	end
+	coroutine.wrap(GSSVM_fake_script)()
+	local function MWUVEW_fake_script() -- Default.LocalScript 
+		local script = Instance.new('LocalScript', Default)
+
+		local parent = script.Parent
+		local sound = parent.Parent.spoky
+
+		parent.Activated:Connect(function()
+			if sound.Playing == true then
+				sound.Playing = false
+			else
+				sound.Playing = true
+			end
+		end)
+	end
+	coroutine.wrap(MWUVEW_fake_script)()
+	local function BIKZQ_fake_script() -- Swap.LocalScript 
+		local script = Instance.new('LocalScript', Swap)
+
+		local parent = script.Parent
+		local playback = parent.Parent.PlayBackSpeed
+		local Sound = parent.Parent.SoundIds
+		local volume = parent.Parent.Volume
+		local looped = parent.Parent.Looped
+		parent.Activated:Connect(function()
+			if Sound.Visible == true then
+				Sound.Visible = false
+				playback.Visible = true
+				volume.Visible = false
+				looped.Visible = false
+
+			elseif playback.Visible ==true then
+				playback.Visible = false
+				Sound.Visible = false
+				volume.Visible = true
+				looped.Visible = false
+
+			elseif volume.Visible == true then
+				Sound.Visible = false
+				playback.Visible = false
+				volume.Visible = false
+				looped.Visible = true
+			elseif looped.Visible == true then
+				Sound.Visible = true
+				playback.Visible = false
+				volume.Visible = false
+				looped.Visible = false
+			end
+		end)
+	end
+	coroutine.wrap(BIKZQ_fake_script)()
+	local function AXYPXC_fake_script() -- Exit.LocalScript 
+		local script = Instance.new('LocalScript', Exit)
+
+		local parent = script.Parent
+		local main = parent.Parent
+
+		parent.Activated:Connect(function()
+			main.Parent.Frame2.Visible = true
+			main.Visible = false
+
+		end)
+	end
+	coroutine.wrap(AXYPXC_fake_script)()
+	local function WHTXC_fake_script() -- Open.LocalScript 
+		local script = Instance.new('LocalScript', Open)
+
+		local parent = script.Parent
+		local main = parent.Parent.Parent.Frame
+
+		parent.Activated:Connect(function()
+			main.Visible = true
+			parent.Parent.Visible = false
+		end)
+	end
+	coroutine.wrap(WHTXC_fake_script)()
+end, "General", "NOT FE")
 FunctionManager:register("Bind Key", function()
 	if bindFrame then return end 
 
@@ -1342,9 +1917,6 @@ end, "Movement", "Fly around!")
 FunctionManager:register("HatHub", function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/inkdupe/hat-scripts/refs/heads/main/updatedhathub.lua"))()
 end, "Troll", "Credits to original maker!")
-FunctionManager:register("Hammer", function()
-	loadstring(game:HttpGet("https://pastebin.com/raw/q6yHJSXK", true))()
-end, "Troll", "ITS HAMMER TIME")
 FunctionManager:register("Hitbox Extender", function()
 	loadstring(game:HttpGet('https://raw.githubusercontent.com/AAPVdev/scripts/refs/heads/main/UI_LimbExtender.lua'))()
 end, "Troll", "Extends hitboxes")
