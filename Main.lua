@@ -86,12 +86,12 @@ local FunctionManager = {
 	Categories          = { "All" },
 	CurrentCategoryIndex= 1,
 	Descriptions        = {},
+	ISFE = {},
 	OnFunctionAdded     = Instance.new("BindableEvent"),
 }
 
-function FunctionManager:register(name, callback, category, description)
+function FunctionManager:register(name, callback, category, description, FE)
 	category = category or "General"
-	
 	if not self.CategorizedFunctions[category] then
 		self.CategorizedFunctions[category] = {}
 		table.insert(self.Categories, category)
@@ -99,8 +99,13 @@ function FunctionManager:register(name, callback, category, description)
 	self.CategorizedFunctions[category][name] = callback
 	self.CategorizedFunctions.All[name]        = callback
 	self.Descriptions[name]                    = description or ""
+	self.ISFE[name]                    = FE or "yes"
+	if description == "NOT FE" then
+		self.ISFE[name] = "no"
+	end
 	self.OnFunctionAdded:Fire(category, name, callback)
 	self.OnFunctionAdded:Fire("All",      name, callback)
+	
 end
 
 function FunctionManager:getCurrentCategory()
@@ -357,6 +362,7 @@ local function updateGrid()
 
 	for name, cb in pairs(FunctionManager.CategorizedFunctions[cat]) do
 		local btn = Instance.new("TextButton")
+		local isFE = FunctionManager.ISFE[name]
 		btn.Size             = UDim2.new(1,0,0,40)
 		btn.BackgroundColor3 = Color3.fromRGB(70,10,10)
 		btn.BorderSizePixel  = 0
@@ -367,9 +373,12 @@ local function updateGrid()
 		btn.TextWrapped      = true
 		btn.Parent           = gridFrame
 		btn.Name             = generate_string(math_random(1, 10))
-		
+		if isFE == "no" then
+			btn.BackgroundColor3 = Color3.fromRGB(72, 100, 87)
+		end
 		-- tooltip
 		local desc = FunctionManager.Descriptions[name]
+		
 		btn.MouseMoved:Connect(function()
 			if desc ~= "" and desc ~= nil then
 				tooltip.Text     = desc
